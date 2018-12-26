@@ -1,0 +1,19 @@
+# OS X
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+
+# Xcode
+build
+DerivedData
+xcuserdata
+*.pbxuser
+*.xcuserdatad
+*.xccheckout
+*.swp
+*.gcov
+
+# CocoaPods
+Pods
+Podfile.lock

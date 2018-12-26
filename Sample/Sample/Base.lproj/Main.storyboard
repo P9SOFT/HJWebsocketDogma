@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Sample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="http://localhost:8080/wsc" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="B4O-M2-lxj" userLabel="ServerAddressTextField">
+                                <rect key="frame" x="20" y="40" width="255" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="YBC-4M-cBR"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="message" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Ok6-Eo-Wki" userLabel="SendTextField">
+                                <rect key="frame" x="20" y="80" width="255" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="Xge-MN-cz2"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="ij5-2s-9Gc" userLabel="ReceiveTextView">
+                                <rect key="frame" x="20" y="120" width="335" height="120"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="120" id="7H1-fn-9lk"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7jg-dF-gz0" userLabel="ConnectButton">
+                                <rect key="frame" x="285" y="40" width="70" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="70" id="nNy-Wl-Hx2"/>
+                                    <constraint firstAttribute="height" constant="30" id="x46-Pc-s0c"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <state key="normal" title="Connect"/>
+                                <connections>
+                                    <action selector="connectButtonTouchUpInside:" destination="BYZ-38-t0r" eventType="touchUpInside" id="S6p-Mp-8cE"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KBn-bC-WaG" userLabel="SendButton">
+                                <rect key="frame" x="285" y="80" width="70" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="70" id="ZUh-FZ-ztM"/>
+                                    <constraint firstAttribute="height" constant="30" id="iA7-nI-kDD"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <state key="normal" title="Send"/>
+                                <connections>
+                                    <action selector="sendButtonTouchUpInside:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eXJ-ax-Inw"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="flc-0x-BZe" userLabel="PickPhoneAndSendButton">
+                                <rect key="frame" x="20" y="250" width="130" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="130" id="5S9-pZ-mAV"/>
+                                    <constraint firstAttribute="height" constant="30" id="UR2-Wy-T9m"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <state key="normal" title="Pick Photo and Send"/>
+                                <connections>
+                                    <action selector="pickPhotoAndSendButtonTouchUpInside:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8Ou-Cj-0g9"/>
+                                </connections>
+                            </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="GQq-xP-GSM" userLabel="ReceivedImageView">
+                                <rect key="frame" x="20" y="290" width="335" height="357"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Ok6-Eo-Wki" firstAttribute="trailing" secondItem="KBn-bC-WaG" secondAttribute="leading" constant="-10" id="1w1-87-d3l"/>
+                            <constraint firstItem="flc-0x-BZe" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="3kp-fj-1Ks"/>
+                            <constraint firstItem="B4O-M2-lxj" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="4Fo-rK-htO"/>
+                            <constraint firstItem="KBn-bC-WaG" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="54Q-iN-Kes"/>
+                            <constraint firstItem="ij5-2s-9Gc" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="795-jK-Uyq"/>
+                            <constraint firstItem="Ok6-Eo-Wki" firstAttribute="top" secondItem="B4O-M2-lxj" secondAttribute="bottom" constant="10" id="Kkp-UI-z1Z"/>
+                            <constraint firstItem="B4O-M2-lxj" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="TnO-gY-zNF"/>
+                            <constraint firstItem="GQq-xP-GSM" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" constant="-20" id="W8M-e3-c8p"/>
+                            <constraint firstItem="KBn-bC-WaG" firstAttribute="top" secondItem="7jg-dF-gz0" secondAttribute="bottom" constant="10" id="bOL-a7-eIM"/>
+                            <constraint firstItem="7jg-dF-gz0" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="cft-wa-a6B"/>
+                            <constraint firstItem="GQq-xP-GSM" firstAttribute="top" secondItem="flc-0x-BZe" secondAttribute="bottom" constant="10" id="dUR-6Y-nNX"/>
+                            <constraint firstItem="B4O-M2-lxj" firstAttribute="trailing" secondItem="7jg-dF-gz0" secondAttribute="leading" constant="-10" id="dfh-En-G7T"/>
+                            <constraint firstItem="flc-0x-BZe" firstAttribute="top" secondItem="ij5-2s-9Gc" secondAttribute="bottom" constant="10" id="dhJ-t1-NeU"/>
+                            <constraint firstItem="GQq-xP-GSM" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="kty-b6-gDi"/>
+                            <constraint firstItem="Ok6-Eo-Wki" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="n00-3t-oBK"/>
+                            <constraint firstItem="ij5-2s-9Gc" firstAttribute="top" secondItem="Ok6-Eo-Wki" secondAttribute="bottom" constant="10" id="pBz-R2-sEA"/>
+                            <constraint firstItem="GQq-xP-GSM" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="vn7-Rf-AUu"/>
+                            <constraint firstItem="7jg-dF-gz0" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="wKO-79-BT5"/>
+                            <constraint firstItem="ij5-2s-9Gc" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="zl1-xk-mQi"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                    <connections>
+                        <outlet property="connectButton" destination="7jg-dF-gz0" id="jBN-vd-J8w"/>
+                        <outlet property="receiveTextView" destination="ij5-2s-9Gc" id="Zeh-53-bRv"/>
+                        <outlet property="receivedImageView" destination="GQq-xP-GSM" id="nmV-i5-QvP"/>
+                        <outlet property="sendTextField" destination="Ok6-Eo-Wki" id="70S-pC-9Zy"/>
+                        <outlet property="serverAddressTextField" destination="B4O-M2-lxj" id="al7-hx-mlK"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>
