@@ -16,7 +16,6 @@ Add the worker to Hydra, bind HJAsyncTcpCommunicator and start.
 
 ```swift
 Hydra.default().addCommonWorker()
-[[Hydra defaultHydra] startAllWorkers];
 HJAsyncTcpCommunicateManager.default().standby(withWorkerName: HydraCommonWorkerName)
 HJAsyncTcpCommunicateManager.default().bind(toHydra: Hydra.default())
 Hydra.default().startAllWorkers()
