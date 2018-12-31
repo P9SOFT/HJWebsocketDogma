@@ -113,8 +113,7 @@ HJAsyncTcpCommunicateManager.default().sendHeaderObject(headerObject, bodyObject
 Send binary like this,
 
 ```swift
-let data = Data("hello".utf8)
-let headerObject = HJWebsocketDogma.binaryFrame(data: data)
+let headerObject = HJWebsocketDogma.binaryFrame(data: Data("hello".utf8))
 HJAsyncTcpCommunicateManager.default().sendHeaderObject(headerObject, bodyObject: nil, toServerKey: serverKey) { (flag, headerObject, bodyObject) in
     if flag == false { // send failed
         print("- server \(key) send failed.")
