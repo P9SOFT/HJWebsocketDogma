@@ -97,6 +97,33 @@ NotificationCenter.default.addObserver(self, selector: #selector(self.tcpCommuni
     }
 ```
 
+Send text like this,
+
+```swift
+let headerObject = HJWebsocketDogma.textFrame(text: "hello")
+HJAsyncTcpCommunicateManager.default().sendHeaderObject(headerObject, bodyObject: nil, toServerKey: serverKey) { (flag, headerObject, bodyObject) in
+    if flag == false { // send failed
+        print("- server \(key) send failed.")
+    } else {
+        print("- server \(key) sent.")
+    }   
+}
+```
+
+Send binary like this,
+
+```swift
+let data = Data("hello".utf8)
+let headerObject = HJWebsocketDogma.binaryFrame(data: data)
+HJAsyncTcpCommunicateManager.default().sendHeaderObject(headerObject, bodyObject: nil, toServerKey: serverKey) { (flag, headerObject, bodyObject) in
+    if flag == false { // send failed
+        print("- server \(key) send failed.")
+    } else {
+        print("- server \(key) sent.")
+    }   
+}
+```
+
 # License
 
 MIT License, where applicable. http://en.wikipedia.org/wiki/MIT_License
