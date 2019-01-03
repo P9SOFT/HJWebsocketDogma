@@ -8,9 +8,9 @@ Pod::Spec.new do |s|
   s.author       = { "Tae Hyun Na" => "taehyun.na@gmail.com" }
 
   s.ios.deployment_target = '8.0'
-  s.requires_arc = true
 
   s.source       = { :git => "https://github.com/P9SOFT/HJWebsocketDogma.git", :tag => "1.0.0" }
+  s.swift_version = "4.2"
   s.source_files  = "Sources/*.swift"
 
   s.dependency 'HJAsyncTcpCommunicator', '~> 1.2.0'
