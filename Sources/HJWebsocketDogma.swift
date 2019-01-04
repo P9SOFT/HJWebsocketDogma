@@ -9,6 +9,9 @@
 
 import UIKit
 import CommonCrypto
+#if COCOAPODS
+import HJAsyncTcpCommunicator
+#endif
 
 class HJWebsocketDataFrame: NSObject {
     
