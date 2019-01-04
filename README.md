@@ -34,7 +34,6 @@ For example, for "http://localhost:8080/ws",
 let serverKey = "MyServerKey"
 let parameters:[AnyHashable:Any] = [HJWebsocketDogma.parameterOriginKey:"http://localhost:8080/ws, HJWebsocketDogma.parameterEndpointKey:"ws"];
 HJAsyncTcpCommunicateManager.default().setServerAddress("localhost", port: 8080, parameters: parameters, forKey: serverKey)
-let wsdogma = HJWebsocketDogma(limitFrameSize: 8180, limitMessageSize: 1024*1024*10)
 ```
 
 # Play
