@@ -13,31 +13,32 @@ import CommonCrypto
 import HJAsyncTcpCommunicator
 #endif
 
-class HJWebsocketDataFrame: NSObject {
+open class HJWebsocketDataFrame: NSObject {
     
     fileprivate enum Opcode:UInt8 {
-                    case continuation = 0x0
-                    case text = 0x1
-                    case binary = 0x2
-                    case close = 0x8
-                    case ping = 0x9
-                    case pong = 0xa
-                    func isControl() -> Bool {
-                        switch self {
-                        case .close, .ping, .pong:
-                            return true
-                        default :
-                            break
-                        }
-                        return false
-                    }
+        case continuation = 0x0
+        case text = 0x1
+        case binary = 0x2
+        case close = 0x8
+        case ping = 0x9
+        case pong = 0xa
+        func isControl() -> Bool {
+            switch self {
+            case .close, .ping, .pong:
+                return true
+            default :
+                break
+            }
+            return false
+        }
     }
     
     fileprivate var fin:Bool = true
     fileprivate var opcode:Opcode = .close
     fileprivate var payload:Data?
+    fileprivate var supportMode:HJAsyncTcpCommunicateDogmaSupportMode = .client
     
-    @objc var data:Any? {
+    @objc open var data:Any? {
         get {
             guard let payload = payload else {
                 return nil
@@ -53,9 +54,25 @@ class HJWebsocketDataFrame: NSObject {
             return nil
         }
     }
+    
+    public convenience init(text: String, supportMode:HJAsyncTcpCommunicateDogmaSupportMode) {
+        self.init()
+        self.opcode = .text
+        self.payload = text.data(using: String.Encoding.utf8)
+        self.supportMode = supportMode
+    }
+    
+    public convenience init(data: Data, supportMode:HJAsyncTcpCommunicateDogmaSupportMode) {
+        self.init()
+        self.opcode = .binary
+        self.payload = data
+        self.supportMode = supportMode
+    }
 }
 
-class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
+open class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
+    
+    fileprivate let uuid:String = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
     
     fileprivate let maskFin:UInt8 = 0x80
     fileprivate let maskOpcode:UInt8 = 0x0f
@@ -138,49 +155,29 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
     @objc static let parameterEndpointKey = "endpoint"
     @objc var closeReason:String?
     
-    @objc static func textFrame(text: String) -> HJWebsocketDataFrame? {
-        
-        guard let payload = text.data(using: String.Encoding.utf8) else {
-            return nil
-        }
-        
-        let dataFrame = HJWebsocketDataFrame()
-        dataFrame.opcode = .text
-        dataFrame.payload = payload
-        return dataFrame
-    }
-    
-    @objc static func binaryFrame(data: Data) -> HJWebsocketDataFrame? {
-        
-        let dataFrame = HJWebsocketDataFrame()
-        dataFrame.opcode = .binary
-        dataFrame.payload = data
-        return dataFrame
-    }
-    
     @objc public convenience init(limitFrameSize:Int, limitMessageSize:Int) {
         self.init()
         self.limitFrameSize = limitFrameSize
         self.limitMessageSize = limitMessageSize
     }
     
-    override func methodType() -> HJAsyncTcpCommunicateDogmaMethodType {
+    override open func methodType() -> HJAsyncTcpCommunicateDogmaMethodType {
         
         return .headerWithBody
     }
     
-    override func prepareAfterConnected() -> Bool {
+    override open func prepareAfterConnected() -> Bool {
         
         closeReason = nil
         return true
     }
     
-    override func needHandshake(_ anQuery: Any?) -> Bool {
+    override open func needHandshake(_ anQuery: Any?) -> Bool {
         
         return (handshakeDone == false)
     }
     
-    override func firstHandshakeObject(afterConnected anQuery: Any?) -> Any? {
+    override open func firstHandshakeObject(afterConnected anQuery: Any?) -> Any? {
         
         guard let query = anQuery as? HYQuery, let info = query.parameter(forKey: HJAsyncTcpCommunicateExecutorParameterKeyServerInfo) as? HJAsyncTcpServerInfo, let secWebsocketKeyData = NSMutableData.init(length: 16) else {
             return false
@@ -199,15 +196,45 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return body as NSString
     }
     
-    override func nextHandshakeObjectAfterUpdateHandshakeStatus(from handshakeObject: Any?) -> Any? {
+    override open func nextHandshakeObjectAfterUpdateHandshakeStatus(from handshakeObject: Any?) -> Any? {
         
         if let body = handshakeObject as? NSString {
-            handshakeDone = (body.range(of: "HTTP/1.1 101 Switching Protocols").location != NSNotFound)
+            if body.hasPrefix("HTTP") == true {
+                handshakeDone = (body.range(of: "HTTP/1.1 101 Switching Protocols").location != NSNotFound)
+            } else {
+                let headers = body.components(separatedBy: "\r\n")
+                var body = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n"
+                for header in headers {
+                    let pair = header.components(separatedBy: ": ")
+                    if pair.count == 2 {
+                        if pair[0] == "Sec-WebSocket-Key", let secWebSocketAcceptData = "\(pair[1])\(uuid)".data(using: .utf8) {
+                            var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
+                            secWebSocketAcceptData.withUnsafeBytes {
+                                _ = CC_SHA1($0, CC_LONG(secWebSocketAcceptData.count), &digest)
+                            }
+                            let secWebSocketAcceptString = Data(bytes: digest).base64EncodedString()
+                            body += "Sec-WebSocket-Accept: \(secWebSocketAcceptString)\r\n"
+                        } else if pair[0] == "Sec-WebSocket-Protocol" {
+                            body += "Sec-WebSocket-Protocol: \(pair[1])"
+                        }
+                    }
+                }
+                body += "\r\n"
+                return body as NSString
+            }
         }
         return nil
     }
     
-    override func lengthOfHandshake(fromStream stream: UnsafeMutablePointer<UInt8>?, streamLength: UInt, appendedLength: UInt) -> UInt {
+    override open func updateHandshkeStatusIfNeed(afterSent headerObject: Any?) {
+        
+        guard let body = headerObject as? NSString else {
+            return
+        }
+        handshakeDone = (body.range(of: "HTTP/1.1 101 Switching Protocols").location != NSNotFound)
+    }
+    
+    override open func lengthOfHandshake(fromStream stream: UnsafeMutablePointer<UInt8>?, streamLength: UInt, appendedLength: UInt) -> UInt {
         
         guard let stream = stream, let string = NSString(bytes:stream, length:Int(streamLength), encoding:String.Encoding.utf8.rawValue) else {
             return 0
@@ -216,7 +243,7 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return (range.location == NSNotFound) ? 0 : UInt(range.location+range.length)
     }
     
-    override func handshakeObject(fromHeaderStream stream: UnsafeMutablePointer<UInt8>?, streamLength: UInt) -> Any? {
+    override open func handshakeObject(fromHeaderStream stream: UnsafeMutablePointer<UInt8>?, streamLength: UInt) -> Any? {
         
         guard let stream = stream, streamLength > 0, let body = NSString(bytes:stream, length:Int(streamLength), encoding:String.Encoding.utf8.rawValue) else {
             return nil
@@ -224,7 +251,7 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return body
     }
     
-    override func isBrokenHandshakeObject(_ handshakeObject: Any?) -> Bool {
+    override open func isBrokenHandshakeObject(_ handshakeObject: Any?) -> Bool {
         
         guard let body = handshakeObject as? NSString, body.length > 0 else {
             return true
@@ -232,7 +259,7 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return false
     }
     
-    override func lengthOfHeader(fromStream stream:UnsafeMutablePointer<UInt8>?, streamLength:UInt, appendedLength:UInt) -> UInt {
+    override open func lengthOfHeader(fromStream stream:UnsafeMutablePointer<UInt8>?, streamLength:UInt, appendedLength:UInt) -> UInt {
         
         guard let stream = stream, streamLength >= 2 else {
             return 0
@@ -261,7 +288,7 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return 0
     }
     
-    override func headerObject(fromHeaderStream stream:UnsafeMutablePointer<UInt8>?, streamLength:UInt) -> Any? {
+    override open func headerObject(fromHeaderStream stream:UnsafeMutablePointer<UInt8>?, streamLength:UInt) -> Any? {
         
         guard let stream = stream, streamLength >= 2 else {
             return nil
@@ -307,9 +334,22 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         case .close :
             var closeCode:UInt16 = 0
             memcpy(&closeCode, stream+2, MemoryLayout<UInt16>.stride)
-            frame.payload = Data(bytes: stream+2+MemoryLayout<UInt16>.stride, count: Int(payloadLength)-Int(MemoryLayout<UInt16>.stride))
-            closeReason = String.init(data: frame.payload as Data? ?? Data(), encoding: String.Encoding.utf8)
+            if payloadLength > Int(MemoryLayout<UInt16>.stride) {
+                frame.payload = Data(bytes: stream+2+MemoryLayout<UInt16>.stride, count: Int(payloadLength)-Int(MemoryLayout<UInt16>.stride))
+                closeReason = String.init(data: frame.payload as Data? ?? Data(), encoding: String.Encoding.utf8)
+            } else {
+                closeReason = nil
+            }
         case .text, .binary :
+            if masked == true {
+                let maskBufflen:Int = Int(MemoryLayout<UInt8>.stride)*4
+                let maskBuff:UnsafeMutablePointer<UInt8> = stream + 2 + Int(extraHeaderLength) - maskBufflen
+                let plook = maskBuff + maskBufflen
+                for i:Int in 0..<Int(payloadLength) {
+                    let index = i
+                    plook[index] = plook[index] ^ maskBuff[i%maskBufflen]
+                }
+            }
             if frame.payload != nil {
                 frame.payload!.append(stream+2+Int(extraHeaderLength), count: Int(payloadLength))
             } else {
@@ -322,7 +362,7 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return frame
     }
     
-    override func isBrokenHeaderObject(_ headerObject:Any?) -> Bool {
+    override open func isBrokenHeaderObject(_ headerObject:Any?) -> Bool {
         
         guard (headerObject as? HJWebsocketDataFrame) != nil else {
             return true
@@ -330,7 +370,7 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return false
     }
     
-    override func isControlHeaderObject(_ headerObject: Any?) -> Bool {
+    override open func isControlHeaderObject(_ headerObject: Any?) -> Bool {
         
         guard let frame = headerObject as? HJWebsocketDataFrame else {
             return false
@@ -338,7 +378,7 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return ((frame.fin == false) || frame.opcode.isControl())
     }
     
-    override func controlHeaderObjectHandling(_ headerObject: Any?) -> Any? {
+    override open func controlHeaderObjectHandling(_ headerObject: Any?) -> Any? {
         
         guard let frame = headerObject as? HJWebsocketDataFrame else {
             return nil
@@ -350,13 +390,26 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
             feedback.opcode = .pong
         case .pong:
             feedback.opcode = .ping
+        case .close:
+            feedback.opcode = .close
         default:
             return nil
         }
         return feedback
     }
     
-    override func lengthOfHeader(fromHeaderObject headerObject:Any?) -> UInt {
+    override open func isBrokenControlObject(_ controlObject: Any?) -> Bool {
+        
+        guard let frame = controlObject as? HJWebsocketDataFrame else {
+            return true
+        }
+        if frame.opcode == .close {
+            return true
+        }
+        return false
+    }
+    
+    override open func lengthOfHeader(fromHeaderObject headerObject:Any?) -> UInt {
         
         if let frame = headerObject as? HJWebsocketDataFrame {
             var len:UInt = 2
@@ -373,7 +426,7 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return 0
     }
     
-    override func lengthOfHandshake(fromHandshakeObject handshakeObject: Any?) -> UInt {
+    override open func lengthOfHandshake(fromHandshakeObject handshakeObject: Any?) -> UInt {
         
         guard let handshakeString = handshakeObject as? NSString else {
             return 0
@@ -381,7 +434,7 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return UInt(handshakeString.lengthOfBytes(using: String.Encoding.utf8.rawValue))
     }
     
-    override func fragmentHandler(fromHeaderObject headerObject: Any?, bodyObject: Any?) -> Any? {
+    override open func fragmentHandler(fromHeaderObject headerObject: Any?, bodyObject: Any?) -> Any? {
         
         guard limitFrameSize >= 2, let frame = headerObject as? HJWebsocketDataFrame else {
             return nil
@@ -389,7 +442,7 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return FragmentHandler(isControlFrame: frame.opcode.isControl(), payloadLength: UInt(frame.payload?.count ?? 0), limitLength: UInt(limitFrameSize))
     }
     
-    override func writeBuffer(_ writeBuffer: UnsafeMutablePointer<UInt8>?, bufferLength: UInt, fromHeaderObject headerObject: Any?, bodyObject: Any?, fragmentHandler: Any?) -> UInt {
+    override open func writeBuffer(_ writeBuffer: UnsafeMutablePointer<UInt8>?, bufferLength: UInt, fromHeaderObject headerObject: Any?, bodyObject: Any?, fragmentHandler: Any?) -> UInt {
         
         guard let plook = writeBuffer, bufferLength > 0 else {
             return 0
@@ -443,29 +496,35 @@ class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
             memcpy(plook+lookIndex, &len, Int(MemoryLayout<UInt64>.stride))
             lookIndex += Int(MemoryLayout<UInt64>.stride)
         }
-        guard let secMaskKey = NSMutableData.init(length: Int(MemoryLayout<UInt8>.stride)*4) else {
-            return 0
-        }
-        if SecRandomCopyBytes(kSecRandomDefault, secMaskKey.length, secMaskKey.mutableBytes) != 0 {
-            return 0
-        }
-        plook[1] |= maskMask
-        memcpy( plook+lookIndex, secMaskKey.mutableBytes.assumingMemoryBound(to: UInt8.self), secMaskKey.length)
-        lookIndex += secMaskKey.length
-        _ = payload.withUnsafeBytes { (unsafePointer: UnsafePointer<UInt8>) in
-            memcpy( plook+lookIndex, unsafePointer+Int(fragmentHandler.alreadySentLength), Int(currentBytes))
-        }
-        let maskBuff:UnsafeMutablePointer<UInt8> = secMaskKey.mutableBytes.assumingMemoryBound(to: UInt8.self)
-        let maskBufflen:Int = secMaskKey.length
-        for i:Int in 0..<currentBytes {
-            let index = lookIndex + i
-            plook[index] = plook[index] ^ maskBuff[i%maskBufflen]
+        if frame.supportMode != .server {
+            guard let secMaskKey = NSMutableData.init(length: Int(MemoryLayout<UInt8>.stride)*4) else {
+                return 0
+            }
+            if SecRandomCopyBytes(kSecRandomDefault, secMaskKey.length, secMaskKey.mutableBytes) != 0 {
+                return 0
+            }
+            plook[1] |= maskMask
+            memcpy( plook+lookIndex, secMaskKey.mutableBytes.assumingMemoryBound(to: UInt8.self), secMaskKey.length)
+            lookIndex += secMaskKey.length
+            _ = payload.withUnsafeBytes { (unsafePointer: UnsafePointer<UInt8>) in
+                memcpy( plook+lookIndex, unsafePointer+Int(fragmentHandler.alreadySentLength), Int(currentBytes))
+            }
+            let maskBuff:UnsafeMutablePointer<UInt8> = secMaskKey.mutableBytes.assumingMemoryBound(to: UInt8.self)
+            let maskBufflen:Int = secMaskKey.length
+            for i:Int in 0..<currentBytes {
+                let index = lookIndex + i
+                plook[index] = plook[index] ^ maskBuff[i%maskBufflen]
+            }
+        } else {
+            _ = payload.withUnsafeBytes { (unsafePointer: UnsafePointer<UInt8>) in
+                memcpy( plook+lookIndex, unsafePointer+Int(fragmentHandler.alreadySentLength), Int(currentBytes))
+            }
         }
         
         return UInt(lookIndex+currentBytes)
     }
     
-    override func resetAfterDisconnected() {
+    override open func resetAfterDisconnected() {
         
         handshakeDone = false
     }

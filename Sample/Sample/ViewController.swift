@@ -53,7 +53,7 @@ class ViewController: UIViewController {
                 HJAsyncTcpCommunicateManager.default().setServerAddress(serverAddress, port: port, parameters: parameters, forKey: serverKey)
                 
                 // request connect and regist each handlers.
-                HJAsyncTcpCommunicateManager.default().connect(toServerKey: serverKey, timeout: 3.0, dogma: wsdogma, connectHandler: { (flag, headerObject, bodyObject) in
+                HJAsyncTcpCommunicateManager.default().connect(toServerKey: serverKey, timeout: 3.0, dogma: wsdogma, connect: { (flag, key, header, body) in
                     if flag == true { // connect ok
                         self.connectButton.setTitle("Disconnect", for:UIControl.State())
                         self.connectButton.isEnabled = true
@@ -62,9 +62,9 @@ class ViewController: UIViewController {
                         self.connectButton.isEnabled = true
                         self.showAlert("Connect Failed", completion:nil)
                     }
-                }, receiveHandler: { (flag, headerObject, bodyObject) in
+                }, receive: { (flag, key, header, body) in
                     if flag == true { // receive ok
-                        if let dataFrame = headerObject as? HJWebsocketDataFrame {
+                        if let dataFrame = header as? HJWebsocketDataFrame {
                             if let receivedText = dataFrame.data as? String {
                                 self.receiveTextView.text += "\n- text: \(receivedText)"
                             } else if let receivedData = dataFrame.data as? Data, let image = UIImage(data: receivedData) {
@@ -74,7 +74,7 @@ class ViewController: UIViewController {
                     } else { // receive failed
                         self.showAlert("Receive Failed", completion:nil)
                     }
-                }, disconnect: { (flag, headerObject, bodyObject) in
+                }, disconnect: { (flag, key, header, body) in
                     if flag == true { // disconnect ok
                         if let closeReason = self.wsdogma.closeReason {
                             self.receiveTextView.text += "\n- close: \(closeReason)"
@@ -103,13 +103,15 @@ class ViewController: UIViewController {
             sendTextField.resignFirstResponder()
         }
         
-        guard let text = sendTextField.text, text.count > 0, let headerObject = HJWebsocketDogma.textFrame(text: text) else {
+        guard let text = sendTextField.text, text.count > 0 else {
             showAlert("Fill Send Text", completion:nil)
             return
         }
         
+        let headerObject = HJWebsocketDataFrame(text: text, supportMode: .client)
+        
         // send text
-        HJAsyncTcpCommunicateManager.default().sendHeaderObject(headerObject, bodyObject: nil, toServerKey: serverKey) { (flag, headerObject, bodyObject) in
+        HJAsyncTcpCommunicateManager.default().sendHeaderObject(headerObject, bodyObject: nil, toServerKey: serverKey) { (flag, key, header, body) in
             if flag == false { // send failed
                 self.showAlert("Send Failed", completion:nil)
             }
@@ -167,9 +169,12 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             return
         }
         
-        if let data = image.jpegData(compressionQuality: 1), let headerObject = HJWebsocketDogma.binaryFrame(data: data) {
+        if let data = image.jpegData(compressionQuality: 1) {
+            
+            let headerObject = HJWebsocketDataFrame(data: data, supportMode: .client)
+            
             // send binary
-            HJAsyncTcpCommunicateManager.default().sendHeaderObject(headerObject, bodyObject: nil, toServerKey: serverKey) { (flag, headerObject, bodyObject) in
+            HJAsyncTcpCommunicateManager.default().sendHeaderObject(headerObject, bodyObject: nil, toServerKey: serverKey) { (flag, key, header, body) in
                 if flag == false { // send failed
                     self.showAlert("Send Failed", completion:nil)
                 }
