@@ -146,14 +146,15 @@ open class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         }
     }
     
-    fileprivate var handshakeDone:Bool = false
-    fileprivate var lastFrame:HJWebsocketDataFrame?
+    fileprivate let parameterHandshakeDoneKey = "HJWebsocketDogmaParameterHandshakeDoneKey"
+    fileprivate let parameterLastFrameKey = "HJWebsocketDogmaParameterLastFrameKey"
+    fileprivate let parameterCloseReason = "HJWebsocketDogmaParameterCloseReasonKey"
+    
     fileprivate var limitFrameSize:Int = 8180
     fileprivate var limitMessageSize:Int = (1024*1024*10)
     
-    @objc static let parameterOriginKey = "origin"
-    @objc static let parameterEndpointKey = "endpoint"
-    @objc var closeReason:String?
+    @objc static let parameterOriginKey = "HJWebsocketDogmaParameterOriginKey"
+    @objc static let parameterEndpointKey = "HJWebsocketDogmaParameterEndpointKey"
     
     @objc public convenience init(limitFrameSize:Int, limitMessageSize:Int) {
         self.init()
@@ -166,20 +167,17 @@ open class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return .headerWithBody
     }
     
-    override open func prepareAfterConnected() -> Bool {
-        
-        closeReason = nil
+    override open func needHandshake(_ sessionQuery: Any?) -> Bool {
+       
+        if let query = sessionQuery as? HYQuery, let handshakeDone = query.parameter(forKey: parameterHandshakeDoneKey) as? Bool {
+            return !handshakeDone
+        }
         return true
     }
     
-    override open func needHandshake(_ anQuery: Any?) -> Bool {
+    override open func firstHandshakeObject(afterConnected sessionQuery: Any?) -> Any? {
         
-        return (handshakeDone == false)
-    }
-    
-    override open func firstHandshakeObject(afterConnected anQuery: Any?) -> Any? {
-        
-        guard let query = anQuery as? HYQuery, let info = query.parameter(forKey: HJAsyncTcpCommunicateExecutorParameterKeyServerInfo) as? HJAsyncTcpServerInfo, let secWebsocketKeyData = NSMutableData.init(length: 16) else {
+        guard let query = sessionQuery as? HYQuery, let info = query.parameter(forKey: HJAsyncTcpCommunicateExecutorParameterKeyServerInfo) as? HJAsyncTcpServerInfo, let secWebsocketKeyData = NSMutableData.init(length: 16) else {
             return false
         }
         if SecRandomCopyBytes(kSecRandomDefault, secWebsocketKeyData.length, secWebsocketKeyData.mutableBytes) != 0 {
@@ -196,11 +194,11 @@ open class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return body as NSString
     }
     
-    override open func nextHandshakeObjectAfterUpdateHandshakeStatus(from handshakeObject: Any?) -> Any? {
+    override open func nextHandshakeObjectAfterUpdateHandshakeStatus(from handshakeObject: Any?, sessionQuery: Any?) -> Any? {
         
-        if let body = handshakeObject as? NSString {
+        if let body = handshakeObject as? NSString, let query = sessionQuery as? HYQuery {
             if body.hasPrefix("HTTP") == true {
-                handshakeDone = (body.range(of: "HTTP/1.1 101 Switching Protocols").location != NSNotFound)
+                query.setParameter((body.range(of: "HTTP/1.1 101 Switching Protocols").location != NSNotFound), forKey: parameterHandshakeDoneKey)
             } else {
                 let headers = body.components(separatedBy: "\r\n")
                 var body = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n"
@@ -226,15 +224,15 @@ open class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return nil
     }
     
-    override open func updateHandshkeStatusIfNeed(afterSent headerObject: Any?) {
+    override open func updateHandshkeStatusIfNeed(afterSent headerObject: Any?, sessionQuery: Any?) {
         
-        guard let body = headerObject as? NSString else {
+        guard let body = headerObject as? NSString, let query = sessionQuery as? HYQuery else {
             return
         }
-        handshakeDone = (body.range(of: "HTTP/1.1 101 Switching Protocols").location != NSNotFound)
+        query.setParameter((body.range(of: "HTTP/1.1 101 Switching Protocols").location != NSNotFound), forKey: parameterHandshakeDoneKey)
     }
     
-    override open func lengthOfHandshake(fromStream stream: UnsafeMutablePointer<UInt8>?, streamLength: UInt, appendedLength: UInt) -> UInt {
+    override open func lengthOfHandshake(fromStream stream: UnsafeMutablePointer<UInt8>?, streamLength: UInt, appendedLength: UInt, sessionQuery: Any?) -> UInt {
         
         guard let stream = stream, let string = NSString(bytes:stream, length:Int(streamLength), encoding:String.Encoding.utf8.rawValue) else {
             return 0
@@ -243,7 +241,7 @@ open class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return (range.location == NSNotFound) ? 0 : UInt(range.location+range.length)
     }
     
-    override open func handshakeObject(fromHeaderStream stream: UnsafeMutablePointer<UInt8>?, streamLength: UInt) -> Any? {
+    override open func handshakeObject(fromHeaderStream stream: UnsafeMutablePointer<UInt8>?, streamLength: UInt, sessionQuery: Any?) -> Any? {
         
         guard let stream = stream, streamLength > 0, let body = NSString(bytes:stream, length:Int(streamLength), encoding:String.Encoding.utf8.rawValue) else {
             return nil
@@ -259,7 +257,7 @@ open class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return false
     }
     
-    override open func lengthOfHeader(fromStream stream:UnsafeMutablePointer<UInt8>?, streamLength:UInt, appendedLength:UInt) -> UInt {
+    override open func lengthOfHeader(fromStream stream:UnsafeMutablePointer<UInt8>?, streamLength:UInt, appendedLength:UInt, sessionQuery: Any?) -> UInt {
         
         guard let stream = stream, streamLength >= 2 else {
             return 0
@@ -288,9 +286,9 @@ open class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return 0
     }
     
-    override open func headerObject(fromHeaderStream stream:UnsafeMutablePointer<UInt8>?, streamLength:UInt) -> Any? {
+    override open func headerObject(fromHeaderStream stream:UnsafeMutablePointer<UInt8>?, streamLength:UInt, sessionQuery: Any?) -> Any? {
         
-        guard let stream = stream, streamLength >= 2 else {
+        guard let stream = stream, streamLength >= 2, let query = sessionQuery as? HYQuery else {
             return nil
         }
         
@@ -300,7 +298,7 @@ open class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         if rsv2 == true || rsv3 == true {
             return nil
         }
-        let frame = lastFrame ?? HJWebsocketDataFrame()
+        let frame = query.parameter(forKey: parameterLastFrameKey) as? HJWebsocketDataFrame ?? HJWebsocketDataFrame()
         frame.fin = ((stream[0] & maskFin) != 0)
         
         var opcode = HJWebsocketDataFrame.Opcode(rawValue: UInt8(stream[0] & maskOpcode)) ?? .close
@@ -334,11 +332,8 @@ open class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         case .close :
             var closeCode:UInt16 = 0
             memcpy(&closeCode, stream+2, MemoryLayout<UInt16>.stride)
-            if payloadLength > Int(MemoryLayout<UInt16>.stride) {
-                frame.payload = Data(bytes: stream+2+MemoryLayout<UInt16>.stride, count: Int(payloadLength)-Int(MemoryLayout<UInt16>.stride))
-                closeReason = String.init(data: frame.payload as Data? ?? Data(), encoding: String.Encoding.utf8)
-            } else {
-                closeReason = nil
+            if payloadLength > Int(MemoryLayout<UInt16>.stride), let query = sessionQuery as? HYQuery {
+                query.setParameter(Data(bytes: stream+2+MemoryLayout<UInt16>.stride, count: Int(payloadLength)-Int(MemoryLayout<UInt16>.stride)), forKey: parameterCloseReason)
             }
         case .text, .binary :
             if masked == true {
@@ -358,7 +353,11 @@ open class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         default :
             break
         }
-        lastFrame = (frame.fin == true) ? nil : frame
+        if frame.fin == true {
+            query.removeParameter(forKey: parameterLastFrameKey)
+        } else {
+            query.setParameter(frame, forKey: parameterLastFrameKey)
+        }
         return frame
     }
     
@@ -524,8 +523,12 @@ open class HJWebsocketDogma: HJAsyncTcpCommunicateDogma {
         return UInt(lookIndex+currentBytes)
     }
     
-    override open func resetAfterDisconnected() {
+    override open func disconnectReasonObject(_ sessionQuery: Any?) -> Any? {
         
-        handshakeDone = false
+        guard let query = sessionQuery as? HYQuery else {
+            return nil
+        }
+        
+        return query.parameter(forKey: parameterCloseReason)
     }
 }

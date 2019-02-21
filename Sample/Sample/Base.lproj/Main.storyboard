@@ -27,7 +27,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="message" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Ok6-Eo-Wki" userLabel="SendTextField">
-                                <rect key="frame" x="20" y="80" width="255" height="30"/>
+                                <rect key="frame" x="20" y="75" width="255" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="Xge-MN-cz2"/>
                                 </constraints>
@@ -35,10 +35,10 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="ij5-2s-9Gc" userLabel="ReceiveTextView">
-                                <rect key="frame" x="20" y="120" width="335" height="120"/>
-                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <rect key="frame" x="20" y="110" width="335" height="60"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="120" id="7H1-fn-9lk"/>
+                                    <constraint firstAttribute="height" constant="60" id="7H1-fn-9lk"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -56,7 +56,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KBn-bC-WaG" userLabel="SendButton">
-                                <rect key="frame" x="285" y="80" width="70" height="30"/>
+                                <rect key="frame" x="285" y="75" width="70" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="70" id="ZUh-FZ-ztM"/>
                                     <constraint firstAttribute="height" constant="30" id="iA7-nI-kDD"/>
@@ -67,8 +67,8 @@
                                     <action selector="sendButtonTouchUpInside:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eXJ-ax-Inw"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="flc-0x-BZe" userLabel="PickPhoneAndSendButton">
-                                <rect key="frame" x="20" y="250" width="130" height="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="flc-0x-BZe" userLabel="PickPhotoAndSendButton">
+                                <rect key="frame" x="20" y="175" width="130" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="130" id="5S9-pZ-mAV"/>
                                     <constraint firstAttribute="height" constant="30" id="UR2-Wy-T9m"/>
@@ -80,29 +80,128 @@
                                 </connections>
                             </button>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="GQq-xP-GSM" userLabel="ReceivedImageView">
-                                <rect key="frame" x="20" y="290" width="335" height="357"/>
+                                <rect key="frame" x="20" y="210" width="100" height="100"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="LPv-f5-wEf"/>
+                                    <constraint firstAttribute="width" secondItem="GQq-xP-GSM" secondAttribute="height" multiplier="1:1" id="tGA-Mg-wz9"/>
+                                </constraints>
+                            </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7Wx-5p-alY" userLabel="SeparatorView">
+                                <rect key="frame" x="10" y="315" width="355" height="1"/>
+                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="1" id="bRj-Kr-PSE"/>
+                                </constraints>
+                            </view>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="8080" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="39Y-A0-Ej2" userLabel="ServerPortTextField">
+                                <rect key="frame" x="20" y="321" width="100" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="jRv-Sq-8Lo"/>
+                                    <constraint firstAttribute="height" constant="30" id="qoL-17-4Ej"/>
+                                </constraints>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="D6x-r5-ASp" userLabel="ServerBindButton">
+                                <rect key="frame" x="130" y="321" width="60" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="bSo-Vz-40M"/>
+                                    <constraint firstAttribute="width" constant="60" id="uJo-bz-OYQ"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <state key="normal" title="Bind"/>
+                                <connections>
+                                    <action selector="serverBindButtonTouchUpInside:" destination="BYZ-38-t0r" eventType="touchUpInside" id="M3j-i8-OAB"/>
+                                </connections>
+                            </button>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="message" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="WKE-zZ-svX" userLabel="ServerSendTextField">
+                                <rect key="frame" x="20" y="356" width="255" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="ByB-CO-GlY"/>
+                                </constraints>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OsM-Ds-pDv" userLabel="ServerSendButton">
+                                <rect key="frame" x="285" y="356" width="70" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="7oR-eh-4km"/>
+                                    <constraint firstAttribute="width" constant="70" id="X2P-AQ-MZs"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <state key="normal" title="Send"/>
+                                <connections>
+                                    <action selector="serverSendButtonTouchUpInside:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uoM-uJ-bn5"/>
+                                </connections>
+                            </button>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="pbw-MX-a17" userLabel="ServerReceiveTextView">
+                                <rect key="frame" x="20" y="391" width="335" height="60"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="vDQ-JN-VdE"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5YO-J1-Fgi" userLabel="ServerPickPhotoAndSendButton">
+                                <rect key="frame" x="20" y="456" width="130" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="edk-g2-xNF"/>
+                                    <constraint firstAttribute="width" constant="130" id="kma-GX-VXa"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <state key="normal" title="Pick Photo and Send"/>
+                                <connections>
+                                    <action selector="serverPickPhotoAndSendButtonTouchUpInside:" destination="BYZ-38-t0r" eventType="touchUpInside" id="sLC-i8-mS7"/>
+                                </connections>
+                            </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VMo-jg-iPh" userLabel="ServerReceivedImageView">
+                                <rect key="frame" x="20" y="491" width="100" height="100"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="VMo-jg-iPh" secondAttribute="height" multiplier="1:1" id="Kmc-xx-mOl"/>
+                                    <constraint firstAttribute="width" constant="100" id="sJg-8j-LvK"/>
+                                </constraints>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="39Y-A0-Ej2" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="1X6-E3-hID"/>
                             <constraint firstItem="Ok6-Eo-Wki" firstAttribute="trailing" secondItem="KBn-bC-WaG" secondAttribute="leading" constant="-10" id="1w1-87-d3l"/>
+                            <constraint firstItem="D6x-r5-ASp" firstAttribute="leading" secondItem="39Y-A0-Ej2" secondAttribute="trailing" constant="10" id="28R-Ba-IAY"/>
                             <constraint firstItem="flc-0x-BZe" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="3kp-fj-1Ks"/>
+                            <constraint firstItem="KBn-bC-WaG" firstAttribute="centerY" secondItem="Ok6-Eo-Wki" secondAttribute="centerY" id="4DA-9k-w5b"/>
                             <constraint firstItem="B4O-M2-lxj" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="4Fo-rK-htO"/>
+                            <constraint firstItem="39Y-A0-Ej2" firstAttribute="top" secondItem="7Wx-5p-alY" secondAttribute="bottom" constant="5" id="526-1I-Ezp"/>
                             <constraint firstItem="KBn-bC-WaG" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="54Q-iN-Kes"/>
                             <constraint firstItem="ij5-2s-9Gc" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="795-jK-Uyq"/>
-                            <constraint firstItem="Ok6-Eo-Wki" firstAttribute="top" secondItem="B4O-M2-lxj" secondAttribute="bottom" constant="10" id="Kkp-UI-z1Z"/>
+                            <constraint firstItem="VMo-jg-iPh" firstAttribute="top" secondItem="5YO-J1-Fgi" secondAttribute="bottom" constant="5" id="DK1-00-AHW"/>
+                            <constraint firstItem="OsM-Ds-pDv" firstAttribute="centerY" secondItem="WKE-zZ-svX" secondAttribute="centerY" id="EVR-l9-mEP"/>
+                            <constraint firstItem="pbw-MX-a17" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="FCk-G4-66j"/>
+                            <constraint firstItem="WKE-zZ-svX" firstAttribute="trailing" secondItem="OsM-Ds-pDv" secondAttribute="leading" constant="-10" id="GK7-yt-V4I"/>
+                            <constraint firstItem="5YO-J1-Fgi" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="IDs-ox-2Rk"/>
+                            <constraint firstItem="7jg-dF-gz0" firstAttribute="centerY" secondItem="B4O-M2-lxj" secondAttribute="centerY" id="Iph-am-6Ii"/>
+                            <constraint firstItem="Ok6-Eo-Wki" firstAttribute="top" secondItem="B4O-M2-lxj" secondAttribute="bottom" constant="5" id="Kkp-UI-z1Z"/>
                             <constraint firstItem="B4O-M2-lxj" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="TnO-gY-zNF"/>
-                            <constraint firstItem="GQq-xP-GSM" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" constant="-20" id="W8M-e3-c8p"/>
-                            <constraint firstItem="KBn-bC-WaG" firstAttribute="top" secondItem="7jg-dF-gz0" secondAttribute="bottom" constant="10" id="bOL-a7-eIM"/>
-                            <constraint firstItem="7jg-dF-gz0" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="cft-wa-a6B"/>
-                            <constraint firstItem="GQq-xP-GSM" firstAttribute="top" secondItem="flc-0x-BZe" secondAttribute="bottom" constant="10" id="dUR-6Y-nNX"/>
+                            <constraint firstItem="7Wx-5p-alY" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-10" id="aM7-PK-3KI"/>
+                            <constraint firstItem="OsM-Ds-pDv" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="csa-o6-NoW"/>
+                            <constraint firstItem="GQq-xP-GSM" firstAttribute="top" secondItem="flc-0x-BZe" secondAttribute="bottom" constant="5" id="dUR-6Y-nNX"/>
                             <constraint firstItem="B4O-M2-lxj" firstAttribute="trailing" secondItem="7jg-dF-gz0" secondAttribute="leading" constant="-10" id="dfh-En-G7T"/>
-                            <constraint firstItem="flc-0x-BZe" firstAttribute="top" secondItem="ij5-2s-9Gc" secondAttribute="bottom" constant="10" id="dhJ-t1-NeU"/>
+                            <constraint firstItem="flc-0x-BZe" firstAttribute="top" secondItem="ij5-2s-9Gc" secondAttribute="bottom" constant="5" id="dhJ-t1-NeU"/>
+                            <constraint firstItem="pbw-MX-a17" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="ekS-ca-wPl"/>
+                            <constraint firstItem="VMo-jg-iPh" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="h0i-8k-VMM"/>
+                            <constraint firstItem="7Wx-5p-alY" firstAttribute="top" secondItem="GQq-xP-GSM" secondAttribute="bottom" constant="5" id="ijT-pS-kGg"/>
+                            <constraint firstItem="D6x-r5-ASp" firstAttribute="centerY" secondItem="39Y-A0-Ej2" secondAttribute="centerY" id="j4v-Sw-hJf"/>
                             <constraint firstItem="GQq-xP-GSM" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="kty-b6-gDi"/>
                             <constraint firstItem="Ok6-Eo-Wki" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="n00-3t-oBK"/>
-                            <constraint firstItem="ij5-2s-9Gc" firstAttribute="top" secondItem="Ok6-Eo-Wki" secondAttribute="bottom" constant="10" id="pBz-R2-sEA"/>
-                            <constraint firstItem="GQq-xP-GSM" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="vn7-Rf-AUu"/>
+                            <constraint firstItem="ij5-2s-9Gc" firstAttribute="top" secondItem="Ok6-Eo-Wki" secondAttribute="bottom" constant="5" id="pBz-R2-sEA"/>
+                            <constraint firstItem="pbw-MX-a17" firstAttribute="top" secondItem="WKE-zZ-svX" secondAttribute="bottom" constant="5" id="sFh-Qw-ZFi"/>
+                            <constraint firstItem="5YO-J1-Fgi" firstAttribute="top" secondItem="pbw-MX-a17" secondAttribute="bottom" constant="5" id="sIc-iH-NBB"/>
+                            <constraint firstItem="WKE-zZ-svX" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="vEW-ih-fXu"/>
                             <constraint firstItem="7jg-dF-gz0" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="wKO-79-BT5"/>
+                            <constraint firstItem="WKE-zZ-svX" firstAttribute="top" secondItem="39Y-A0-Ej2" secondAttribute="bottom" constant="5" id="x8m-wx-ESo"/>
+                            <constraint firstItem="7Wx-5p-alY" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="xwb-6X-FhS"/>
                             <constraint firstItem="ij5-2s-9Gc" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="zl1-xk-mQi"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -113,6 +212,11 @@
                         <outlet property="receivedImageView" destination="GQq-xP-GSM" id="nmV-i5-QvP"/>
                         <outlet property="sendTextField" destination="Ok6-Eo-Wki" id="70S-pC-9Zy"/>
                         <outlet property="serverAddressTextField" destination="B4O-M2-lxj" id="al7-hx-mlK"/>
+                        <outlet property="serverBindButton" destination="D6x-r5-ASp" id="kAj-HS-AZC"/>
+                        <outlet property="serverPortTextField" destination="39Y-A0-Ej2" id="xeS-a7-D7e"/>
+                        <outlet property="serverReceiveTextView" destination="pbw-MX-a17" id="jKy-JR-0ZS"/>
+                        <outlet property="serverReceivedImageView" destination="VMo-jg-iPh" id="4Ea-CS-FAR"/>
+                        <outlet property="serverSendTextField" destination="WKE-zZ-svX" id="AkE-mv-T67"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
