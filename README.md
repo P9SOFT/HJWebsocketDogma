@@ -1,13 +1,15 @@
 HJWebsocketDogma
 ============
 
-Websocket client library based on HJAsyncTcpCommunicator.
+Websocket client/server library based on HJAsyncTcpCommunicator.
 
 # Installation
 
 You can download the latest framework files from our Release page.
-HJWebsocketDogma also available through CocoaPods. To install it simply add the following line to your Podfile.
-pod ‘HJWebsocketDogma’
+HJWebsocketDogma also available through CocoaPods. To install it simply add the following line to your Podfile.  
+pod 'Hydra', :modular_headers => true  
+pod 'HJAsyncTcpCommunicator', :modular_headers => true  
+pod 'HJWebsocketDogma' 
 
 # Setup
 
@@ -33,23 +35,25 @@ For example, for "http://localhost:8080/ws",
 ```swift
 let serverKey = "MyServerKey"
 let parameters:[AnyHashable:Any] = [HJWebsocketDogma.parameterOriginKey:"http://localhost:8080/ws, HJWebsocketDogma.parameterEndpointKey:"ws"];
-HJAsyncTcpCommunicateManager.default().setServerAddress("localhost", port: 8080, parameters: parameters, forKey: serverKey)
+let serverInfo = HJAsyncTcpServerInfo.init(address: "localhost", port: 8080, parameters: parameters)
+HJAsyncTcpCommunicateManager.default().setServerInfo(serverInfo, forServerKey: serverKey)
 ```
 
 # Play
 
+Using websocket by client side,
 Call HJAsyncTcpCommunicateManager interface with HJWebsocketDogma and write business code as your way.
 
 ```swift
-HJAsyncTcpCommunicateManager.default().connect(toServerKey: serverKey, timeout: 3.0, dogma: wsdogma, connectHandler: { (flag, headerObject, bodyObject) in
+HJAsyncTcpCommunicateManager.default().connect(serverKey, timeout: 3.0, dogma: wsdogma, connect: { (flag, key, header, body) in
     if flag == true { // connect ok
-        print("- server \(key) connected.")
+        print("- client \(key) connected.")
     } else { // connect failed
-        print("- server \(key) connect failed.")
+        print("- connect failed.")
     }
-}, receiveHandler: { (flag, headerObject, bodyObject) in
+}, receive: { (flag, key, header, body) in
     if flag == true { // receive ok
-        print("- server \(key) received.")
+        print("- client \(key) received.")
         if let dataFrame = headerObject as? HJWebsocketDataFrame {
             if let text = dataFrame.data as? String {
                 print("- got text")
@@ -57,12 +61,94 @@ HJAsyncTcpCommunicateManager.default().connect(toServerKey: serverKey, timeout: 
                 print("- got binary")
             }
         }
-    } else { // receive failed
-        print("- server \(key) receive failed.")
     }
-}, disconnect: { (flag, headerObject, bodyObject) in
-    print("- server \(key) disconnected, \(self.wsdogma.closeReason ?? "done").")
+}, disconnect: { (flag, key, header, body) in
+    if flag == true {
+        let closeReason = ((header as? HJWebsocketDataFrame)?.data as? String) ?? "done"
+        print("- client \(key) disconnected, \(closeReason").")
+    }
 })
+```
+
+After connect, you can get client key in connect handler or notification handler.
+You can send data to client by that client key each other.
+
+Send text like this,
+
+```swift
+let headerObject = HJWebsocketDogma.textFrame(text: "hello", supportMode: .client)
+HJAsyncTcpCommunicateManager.default().sendHeaderObject(headerObject, bodyObject: nil, toClientKey: clientKey) { (flag, key, header, body) in
+    if flag == false { // send failed
+        print("- client \(key) send failed.")
+    } else {
+        print("- client \(key) sent.")
+    }   
+}
+```
+
+Send binary like this,
+
+```swift
+let headerObject = HJWebsocketDogma.binaryFrame(data: Data("hello".utf8), supportMode: .client)
+HJAsyncTcpCommunicateManager.default().sendHeaderObject(headerObject, bodyObject: nil, toClientKey: serverKey) { (flag, key, header, body) in
+    if flag == false { // send failed
+        print("- client \(key) send failed.")
+    } else {
+        print("- client \(key) sent.")
+    }   
+}
+```
+
+Using websocket by server side,
+Call HJAsyncTcpCommunicateManager interface with HJWebsocketDogma and write business code as your way.
+
+```swift
+let serverInfo = HJAsyncTcpServerInfo.init(address: "localhost", port: 8080)
+HJAsyncTcpCommunicateManager.default().setServerInfo(serverInfo, forServerKey: serverKey)
+
+HJAsyncTcpCommunicateManager.default().bind(serverKey, backlog: 4, dogma: wsdogma, bind: { (flag, key, header, body) in
+    if flag == true { // bind ok
+        print("- server \(key) bind ok.")
+    } else { // bind failed
+        print("- server \(key) bind failed.")
+    }
+}, accept: { (flag, key, header, body) in
+    if flag == true {
+       print("- client \(key) accepted" );
+    }
+}, receive: { (flag, key, header, body) in
+    if flag == true, let clientKey = key, let dataFrame = header as? HJWebsocketDataFrame { // receive ok
+        if let receivedText = dataFrame.data as? String {
+            print("- client \(key) receive text: \(receivedText)")
+        } else if let receivedData = dataFrame.data as? Data {
+            print("- client \(key) receive binary")
+        }
+    }
+}, disconnect: { (flag, key, header, body) in
+    if flag == true {
+        print("- client \(key) disconnected.")
+    }
+}, shutdown: { (flag, key, header, body) in
+    if flag == true { // shutdown ok
+        print("- server \(key) shutdowned.")
+    }
+})
+```
+
+Send data from server is same with client side.
+Only different thing is setting supportMode to .server like above.
+And you can get client key in accept handler or notification handler.
+
+```swift
+let headerObject = HJWebsocketDogma.textFrame(text: "hello", supportMode: .server)
+let headerObject = HJWebsocketDogma.binaryFrame(data: Data("hello".utf8), supportMode: .server)
+```
+
+You can also broadcast data to all connected client.
+
+```swift
+let headerObject = HJWebsocketDogma.textFrame(text: "hello", supportMode: .server)
+HJAsyncTcpCommunicateManager.default().broadcastHeaderObject(headerObject, bodyObject: nil, toServerKey: serverKey)
 ```
 
 You can also observe HJWebsocketDogma event to deal with business logic.
@@ -73,52 +159,33 @@ NotificationCenter.default.addObserver(self, selector: #selector(self.tcpCommuni
 
 ```swift
 @objc func tcpCommunicateManagerHandler(notification:Notification) {
-	guard let userInfo = notification.userInfo, let key = userInfo[HJAsyncTcpCommunicateManagerParameterKeyServerKey] as? String, let event = userInfo[HJAsyncTcpCommunicateManagerParameterKeyEvent] as? Int else {
+    guard let userInfo = notification.userInfo,
+          let serverKey = userInfo[HJAsyncTcpCommunicateManagerParameterKeyServerKey] as? String,
+          let eventValue = userInfo[HJAsyncTcpCommunicateManagerParameterKeyEvent] as? Int,
+          let event = HJAsyncTcpCommunicateManagerEvent(rawValue: eventValue) else {
             return
-        }
-        
-        if key == serverKey, let event = HJAsyncTcpCommunicateManagerEvent(rawValue: event) {
-            switch event {
-            case .connected:
-                print("- server \(key) connected.")
-            case .disconnected:
-                print("- server \(key) disconnected.")
-            case .sent:
-                print("- server \(key) sent.")
-            case .sendFailed:
-                print("- server \(key) send failed.")
-            case .received:
-                print("- server \(key) received.")
-            default:
-                break
-            }
-        }
     }
-```
-
-Send text like this,
-
-```swift
-let headerObject = HJWebsocketDogma.textFrame(text: "hello")
-HJAsyncTcpCommunicateManager.default().sendHeaderObject(headerObject, bodyObject: nil, toServerKey: serverKey) { (flag, headerObject, bodyObject) in
-    if flag == false { // send failed
-        print("- server \(key) send failed.")
-    } else {
-        print("- server \(key) sent.")
-    }   
-}
-```
-
-Send binary like this,
-
-```swift
-let headerObject = HJWebsocketDogma.binaryFrame(data: Data("hello".utf8))
-HJAsyncTcpCommunicateManager.default().sendHeaderObject(headerObject, bodyObject: nil, toServerKey: serverKey) { (flag, headerObject, bodyObject) in
-    if flag == false { // send failed
-        print("- server \(key) send failed.")
-    } else {
-        print("- server \(key) sent.")
-    }   
+    let clientKey = userInfo[HJAsyncTcpCommunicateManagerParameterKeyClientKey] as? String ?? "--"
+    switch event {
+    case .connected:
+        print("- server \(serverKey) client \(clientKey) connected.")
+    case .disconnected:
+        print("- server \(serverKey) client \(clientKey) disconnected.")
+    case .sent:
+        print("- server \(serverKey) client \(clientKey) sent.")
+    case .sendFailed:
+        print("- server \(serverKey) client \(clientKey) send failed.")
+    case .received:
+        print("- server \(serverKey) client \(clientKey) received.")
+    case .binded:
+        print("- server \(serverKey) binded.")
+    case .accepted:
+        print("- server \(serverKey) client \(clientKey) accepted.")
+    case .shutdowned:
+        print("- server \(serverKey) shutdowned.")
+    default:
+        break
+    }
 }
 ```
 
