@@ -6,7 +6,7 @@ Websocket client/server library based on HJAsyncTcpCommunicator.
 # Installation
 
 You can download the latest framework files from our Release page.
-HJWebsocketDogma also available through CocoaPods. To install it simply add the following line to your Podfile.
+HJWebsocketDogma also available through CocoaPods. To install it simply add the following line to your Podfile.  
 pod 'Hydra', :modular_headers => true  
 pod 'HJAsyncTcpCommunicator', :modular_headers => true  
 pod 'HJWebsocketDogma' 
