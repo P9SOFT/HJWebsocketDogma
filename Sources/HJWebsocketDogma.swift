@@ -9,7 +9,7 @@
 
 import UIKit
 import CommonCrypto
-#if COCOAPODS
+#if canImport(HJAsyncTcpCommunicator)
 import HJAsyncTcpCommunicator
 #endif
 
