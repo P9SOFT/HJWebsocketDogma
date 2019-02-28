@@ -34,7 +34,7 @@ For example, for "http://localhost:8080/ws",
 
 ```swift
 let serverKey = "MyServerKey"
-let parameters:[AnyHashable:Any] = [HJWebsocketDogma.parameterOriginKey:"http://localhost:8080/ws, HJWebsocketDogma.parameterEndpointKey:"ws"];
+let parameters:[AnyHashable:Any] = [HJWebsocketDogma.parameterOriginKey:"http://localhost:8080/ws", HJWebsocketDogma.parameterEndpointKey:"ws"];
 let serverInfo = HJAsyncTcpServerInfo.init(address: "localhost", port: 8080, parameters: parameters)
 HJAsyncTcpCommunicateManager.default().setServerInfo(serverInfo, forServerKey: serverKey)
 ```
